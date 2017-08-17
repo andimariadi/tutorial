@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Selamat Datang di Tutorial</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+	<link href="assets/css/styles.css" rel="stylesheet" type="text/css" />
+	<script src="assets/js/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="assets/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<header header id="masthead" role="banner" itemscope="itemscope" itemtype="http://schema.org/WPHeader">
+	<nav class="navbar navbar-default">
+	  <div class="container-fluid">
+	    <!-- Brand and toggle get grouped for better mobile display -->
+	    <div class="navbar-header">
+	      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+	        <span class="sr-only">Toggle navigation</span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	      </button>
+	      <a class="navbar-brand" href="#">Tutorial</a>
+	    </div>
+
+	    <!-- Collect the nav links, forms, and other content for toggling -->
+	    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
+	    	<form class="navbar-form navbar-right">
+		        <div class="form-group">
+		          <input type="text" class="form-control" placeholder="Search">
+		        </div>
+		        <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+		    </form>
+	      <ul class="nav navbar-nav navbar-right">
+	        <li><a href="#">Home</a></li>
+	        <li class="dropdown">
+	          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Berita <span class="caret"></span></a>
+	          <ul class="dropdown-menu">
+	            <li><a href="#">Action</a></li>
+	            <li><a href="#">Another action</a></li>
+	            <li><a href="#">Something else here</a></li>
+	            <li role="separator" class="divider"></li>
+	            <li><a href="#">Separated link</a></li>
+	          </ul>
+	        </li>
+
+	        <li><a href="#">Profile</a></li>
+	        <li><a href="#">About</a></li>
+	      </ul>
+
+
+	    </div><!-- /.navbar-collapse -->
+	  </div><!-- /.container-fluid -->
+	</nav>
+</header>
+
+<div class="container">
+	<h1>Cara Menambah Tabel (kelas)</h1>
+	<p>Jika ingin menambahkan tabel kelas masuk kehalaman <a href="http://localhost/phpmyadmin/">http://localhost/phpmyadmin/</a> Buka database kita misal <code>db_ujian</code> terus klik <code>new</code>, lihat gambar</p>
+	<img src="assets/img/tambah-database.png" />
+	<p>Setelah itu masukkan data field / attribute dari kelas misalnya NIK dan Kelas, lalu klik simpan. Lihat gambar</p>
+	<img src="assets/img/tambah-kelas.png" />
+	<p>Maka tabel di database sudah dibuat, selanjutnya kita membuat simpan sederhana dari tabel tersebut.</p>
+	<h2>Koneksi Database</h2>
+	<p>Sebelum masuk ke CRUD ( Simpan, lihat, edit, hapus) kita koneksikan terlebih dahulu. buat halaman <code>koneksi.php</code> lalu masukkan kode ini.</p>
+<pre>
+&lt;?php
+	$server = "localhost";
+	$user = "root";
+	$pass = "";
+	$db = "db_ujian";
+	$koneksi = mysqli_connect($server, $user, $pass, $db);
+?&gt;
+</pre>
+	<h2>Membuat Halaman Lihat</h2>
+	<p>Untuk membuat halaman lihat, buat dahulu file <code>lihat.php</code>, lalu masukkan kode ini:</p>
+<pre>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+	&lt;title&gt;Halaman Lihat&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;a href="print.php"&gt;Print&lt;/a&gt;
+&lt;?php
+
+	include 'koneksi.php';
+	$sql = mysqli_query($koneksi, "SELECT * FROM `kelas`");
+	echo '&lt;table&gt;';
+	echo '&lt;tr&gt;&lt;td&gt;NIK&lt;/td&gt;&lt;td&gt;Kelas&lt;/td&gt;&lt;td&gt;Action&lt;/td&gt;&lt;/tr&gt;';
+	foreach ($sql as $data) {
+		echo '&lt;tr&gt;
+		&lt;td&gt;' . $data['nik'] .'&lt;/td&gt;
+		&lt;td&gt;' . $data['kelas'] .'&lt;/td&gt;
+		&lt;td&gt;&lt;a href="edit.php?id=' . $data['nik'] .'"&gt;Edit&lt;/a&gt;
+		&lt;a href="hapus.php?id=' . $data['nik'] .'"&gt;Hapus&lt;/a&gt; &lt;/td&gt;
+		&lt;/tr&gt;';
+	}
+	echo '&lt;/table&gt;';
+
+?&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+<p>Dapat dilihat terdapat <code>$data['nik']</code> dan <code>$data['kelas']</code>, itu disamakan dengan field / attribute yang kita buat.</p>
+	<h2>Membuat Halaman Simpan</h2>
+	<p>Untuk membuat halaman simpan, buat dahulu file <code>simpan.php</code>, lalu masukkan kode ini:</p>
+<pre>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+	&lt;title&gt;Halaman Simpan&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;?php
+
+	include 'koneksi.php';
+	if (isset($_POST['simpan'])) {
+		$nik 	= $_POST['nik'];
+		$kelas	= $_POST['kelas'];
+		$sql 	= mysqli_query($koneksi, "INSERT INTO `kelas`(`nik`, `kelas`) VALUES ('$nik','$kelas')");
+		if ($sql) {
+			echo "Tersimpan!";
+		} else {
+			echo "Gagal!";
+		}
+	}
+?&gt;
+
+&lt;form method="post"&gt;
+	&lt;p&gt;&lt;input type="text" name="nik"/&gt;&lt;/p&gt;
+	&lt;p&gt;&lt;input type="text" name="kelas"/&gt;&lt;/p&gt;	
+	&lt;button type="submit" name="simpan"&gt;Simpan&lt;/button&gt;
+&lt;/form&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+	<h2>Membuat Halaman Edit</h2>
+	<p>Untuk membuat halaman Edit, buat dahulu file <code>edit.php</code>, lalu masukkan kode ini:</p>
+<pre>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+	&lt;title&gt;Halaman Edit&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;?php
+
+	$id = $_GET['id'];
+	
+	include 'koneksi.php';
+	if (isset($_POST['simpan'])) {
+		$kelas	= $_POST['kelas'];
+		$sql 	= mysqli_query($koneksi, "UPDATE `kelas` SET `kelas`='$kelas' WHERE `nik`='$id'");
+		if ($sql) {
+			echo "Tersimpan!";
+		} else {
+			echo "Gagal!";
+		}
+	}
+?&gt;
+
+&lt;?php
+	$lihat = mysqli_query($koneksi, "SELECT * FROM `kelas` WHERE `nik`='$id'");
+	foreach ($lihat as $value) {
+		echo '&lt;form method="post"&gt;
+			&lt;p&gt;&lt;input type="text" name="nik" value="'.$value['nik'].'" read-only/&gt;&lt;/p&gt;
+			&lt;p&gt;&lt;input type="text" name="kelas" value="'.$value['kelas'].'" /&gt;&lt;/p&gt;	
+			&lt;button type="submit" name="simpan"&gt;Simpan&lt;/button&gt;
+		&lt;/form&gt;';
+	}
+?&gt;
+
+
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+	<h2>Membuat Halaman Hapus</h2>
+	<p>Untuk membuat halaman hapus, buat dahulu file <code>hapus.php</code>, lalu masukkan kode ini:</p>
+<pre>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+	&lt;title&gt;Halaman Hapus&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;?php
+
+	$id = $_GET['id'];
+	
+	include 'koneksi.php';
+	$lihat = mysqli_query($koneksi, "SELECT * FROM `kelas` WHERE `nik`='$id'");
+	if (mysqli_num_rows($lihat)) {
+		$sql = mysqli_query($koneksi, "DELETE FROM `kelas` WHERE `nik`='$id'");
+		if ($sql) {
+			echo "Dihapus!";
+		} else {
+			echo "Gagal!";
+		}
+	}
+?&gt;
+
+
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+	<h2>Membuat Halaman Print</h2>
+	<p>Untuk membuat halaman print, buat dahulu file <code>print.php</code>, lalu masukkan kode ini:</p>
+
+<pre>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+	&lt;title&gt;Halaman Lihat&lt;/title&gt;
+&lt;/head&gt;
+&lt;body onload="window.print()"&gt;
+
+&lt;?php
+
+	include 'koneksi.php';
+	$sql = mysqli_query($koneksi, "SELECT * FROM `kelas`");
+	echo '&lt;table border="border"&gt;';
+	echo '&lt;tr&gt;&lt;td&gt;NIK&lt;/td&gt;&lt;td&gt;Kelas&lt;/td&gt;&lt;/tr&gt;';
+	foreach ($sql as $data) {
+		echo '&lt;tr&gt;
+		&lt;td&gt;' . $data['nik'] .'&lt;/td&gt;
+		&lt;td&gt;' . $data['kelas'] .'&lt;/td&gt;
+		&lt;/tr&gt;';
+	}
+	echo '&lt;/table&gt;';
+
+?&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+</div>
+
+	<footer class="footer">
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-12">
+					<p>Tutorial &copy; All reserved 2017</p>
+				</div>
+			</div>
+		</div>
+	</footer>
+
+	
+</body>
+</html>
